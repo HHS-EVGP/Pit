@@ -4,8 +4,7 @@
 # Learn Guide: https://learn.adafruit.com/lora-and-lorawan-for-raspberry-pi
 # Author: Brent Rubell for Adafruit Industries
 
-# Last updated on 1/20/2024
-# - - - Not Yet offical tested - - - 
+# Last updated on 1/23/2024 
 
 import adafruit_rfm9x
 import board
@@ -76,8 +75,6 @@ while True:
 
         if conter == 0:
             writer.writeheader()
-        
-        writer.writerow({'time':datetime.now(),'counter':conter,})
     
         conter += 1
         packet = None
@@ -87,6 +84,7 @@ while True:
         
         if packet is None:
             print('- Waiting for PKT -')
+            writer.writerow({'time':datetime.now(),'counter':conter})
         else:
             
             try:
@@ -95,8 +93,9 @@ while True:
 
                 try:
                     all_data = current_packet.split('|')
-                    print(all_data)
-                    CA, BP, temps, IMU, motor, throttle = map(str, all_data)
+                    # print(all_data)
+                    print(conter)
+                    CA, BP, temps, motor, throttle, IMU = map(str, all_data)
                     
                     if IMU.startswith("imu,"):
                         values = IMU.split(',')
