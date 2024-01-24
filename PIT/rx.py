@@ -60,6 +60,15 @@ M = None
 MT = None
 th = None
 
+def printError(erorr):
+    print("_"*20)
+    print(" "*7,"ERORR!"," "*7)
+    print("\/"*10)
+    print(" ")
+    print(erorr)
+    print(" ")
+    print("_"*20)
+    
 while True:
     with open(new_file_name, 'a', newline='') as csv_file: 
         
@@ -152,7 +161,7 @@ while True:
                         'IMU_Accel_x':ax, 'IMU_Accel_y':ay, 'IMU_Accel_z':az,
                         'IMU_Gyro_x':gx, 'IMU_Gyro_y':gy, 'IMU_Gyro_z':gz,
                         'Battery_1':batt1,'Battery_2':batt2,'Brake_Pedal':bp,
-                        'ca_AmpHrs':AH,'ca_Voltage':V,'ca_Current':C,'ca_Speed':S,'ca_Miles':M
+                        'ca_AmpHrs':AH,'ca_Voltage':V,'ca_Current':C,'ca_Speed':S,'ca_Miles':M,
                         'motor_temp':MT,'throttle':th
                         })
                 except Exception as err:
@@ -162,11 +171,3 @@ while True:
         csv_file.close()    
     
 
-def printError(error):
-    print("_"*20)
-    print(" "*7,"ERORR!"," "*7)
-    print("\/"*10)
-    print(" ")
-    print(erorr)
-    print(" ")
-    print("_"*20)
