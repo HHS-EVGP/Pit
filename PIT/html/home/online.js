@@ -8,7 +8,7 @@ let timeTillCheck = 0;
 let wasOnlineCollect = false;
 let wasOnlineSend = false;
 
-async function updateTime() {timeTillCheck
+async function updateTime() {
 
     document.getElementById("timeTillCheck").innerHTML = timeTillCheck;
 
@@ -25,17 +25,20 @@ async function updateTime() {timeTillCheck
         timeTillCheck = 5
         //DO THE CHECK!!!
     
-        const recive = await isReciveOnline();
-        if(recive){
+        const receive = await isReciveOnline();
+        if(receive){
             wasOnlineCollect = true;
         }else{
             wasOnlineCollect = false;
         }
 
-        
-    
-        wasOnlineSend = true;
-        wasOnlineSend = false;
+        const send = await isSendOnline();
+        if(send && wasOnlineCollect){
+            wasOnlineSend = true;
+        }else{
+            wasOnlineSend = false;
+        }
+
     }
 
 
@@ -55,10 +58,10 @@ function pausecomp(millis)
 
 async function isReciveOnline(){
     const newestFile = await findNewestFile();
-    console.log(newestFile);
-    const first = await getNewestDataPoints(newestFile);
+    // console.log(newestFile);
+    const first = await getNewestDataPoints(newestFile,0);
     pausecomp(500)
-    const second = await getNewestDataPoints(newestFile);
+    const second = await getNewestDataPoints(newestFile,0);
 
     if (second == first){
         return false
@@ -67,32 +70,46 @@ async function isReciveOnline(){
     }
 }
 
-async function getNewestDataPoints(csvFilePath) {
-  try {
+async function isSendOnline(){
+    const newestFile = await findNewestFile();
+    // console.log(newestFile);
+    const answer = await getNewestDataPoints(newestFile,1);
+    return answer
+}
+
+async function getNewestDataPoints(csvFilePath,reSe) {
     // Fetch the CSV file
     const response = await fetch(csvFilePath);
     const csvData = await response.text();
 
     // Parse CSV data using Papaparse
     const parsedData = Papa.parse(csvData, { header: true });
-
+        
     // Get the newest 10 data points
     const newestDataPoints = parsedData.data.slice(-2);
 
-    // Log or use the newest data points as needed
-    // console.log(newestDataPoints[0]["counter"]);
-    return newestDataPoints[0]["counter"];
-
-    // Return the newest data points
-    return newestDataPoints;
-  } catch (error) {
-    console.error('Error fetching or parsing CSV file:', error);
-    return null;
-  }
+    if(reSe == 0){
+        try {
+            // Log or use the newest data points as needed
+            return newestDataPoints[0]["counter"];
+          } catch (error) {
+            console.error('Error fetching or parsing CSV file:', error);
+            return null;
+          }
+    }else if(reSe == 1){
+        if (
+            newestDataPoints[0]["Brake_Pedal"] == newestDataPoints[0]["IMU_Accel_y"] &&
+            newestDataPoints[0]["throttle"] == newestDataPoints[0]["IMU_Accel_z"]
+            ){
+            return false;
+        }else{
+            return true;
+        }
+    }
+  
 }
 
 async function findNewestFile() {
-    let name = "none";
 
     const checkFileExistence = async (filePath) => {
         try {
@@ -103,7 +120,7 @@ async function findNewestFile() {
         }
     };
 
-    let index = 0;
+    let index = 1;
 
     const findNonExistingIndex = async () => {
         while (await checkFileExistence(`/2024/${index}.data.csv`)) {
